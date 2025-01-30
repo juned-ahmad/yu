@@ -17,7 +17,7 @@
         // Step 1: Authenticate the User
         function authenticate() {
             gapi.load("client:auth2", function() {
-                gapi.auth2.init({ client_id: "YOUR_CLIENT_ID" }).then(() => {
+                gapi.auth2.init({ client_id: "534084871155-l6d10hoto6v2ljfn7fh3r13nj2dgq1io.apps.googleusercontent.com" }).then(() => {
                     let authInstance = gapi.auth2.getAuthInstance();
                     authInstance.signIn().then(user => {
                         accessToken = user.getAuthResponse().access_token;
