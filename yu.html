@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Unsubscribe</title>
+    <script src="https://apis.google.com/js/api.js"></script>
+</head>
+<body>
+    <h2>YouTube Unsubscribe Tool</h2>
+    <button onclick="authenticate()">Login with Google</button>
+    <div id="subscriptions"></div>
+
+    <script>
+        let accessToken;
+
+        // Step 1: Authenticate the User
+        function authenticate() {
+            gapi.load("client:auth2", function() {
+                gapi.auth2.init({ client_id: "YOUR_CLIENT_ID" }).then(() => {
+                    let authInstance = gapi.auth2.getAuthInstance();
+                    authInstance.signIn().then(user => {
+                        accessToken = user.getAuthResponse().access_token;
+                        listSubscriptions(); // Fetch channels after login
+                    });
+                });
+            });
+        }
+
+        // Step 2: Fetch User's Subscriptions
+        function listSubscriptions() {
+            fetch("https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true", {
+                headers: { Authorization: `Bearer ${accessToken}` }
+            })
+            .then(response => response.json())
+            .then(data => {
+                let html = "<h3>Your Subscriptions</h3>";
+                data.items.forEach(sub => {
+                    html += `<div>
+                        <img src="${sub.snippet.thumbnails.default.url}" width="50">
+                        ${sub.snippet.title}
+                        <button onclick="unsubscribe('${sub.id}')">Unsubscribe</button>
+                    </div>`;
+                });
+                document.getElementById("subscriptions").innerHTML = html;
+            });
+        }
+
+        // Step 3: Unsubscribe from a Channel
+        function unsubscribe(subscriptionId) {
+            fetch(`https://www.googleapis.com/youtube/v3/subscriptions?id=${subscriptionId}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${accessToken}` }
+            }).then(() => listSubscriptions()); // Refresh the list after unsubscribing
+        }
+    </script>
+</body>
+</html>
